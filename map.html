@@ -1,0 +1,42 @@
+<html>
+<head>
+    <title>JS 获取图片相对坐标 </title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+    <link href="css/map.css" rel="stylesheet" />
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico"/>
+</head>
+
+<body>
+<div id="controls">
+    <div id="cities">
+        <select id="citySel" size="15" onchange="optionClick()"></select>
+    </div>
+</div>
+
+<div id="control">
+    搜索:<input type="text" id="searchInput" onkeydown="searchCity(event)"/>
+    输入数据:<input id="inputData" type="text"/>
+    <input type="button" value="加载数据" id="inputDataBtn" onclick="loadData()"/>
+    <input type="button" value="显示数据" id="showDataBtn" onclick="showData()"/>
+    <input type="button" value="清空输入框" id="clearBtn" onclick="clearVal()"/>
+    设置图片:<input type="file" id="inputImg" onchange="selectImg()"/>
+
+    <div class="copyright">制作者：小乔 邮箱：
+        <a href="mailto:qiaoshiju@163.com?ie=utf-8&subject=TunShiTianDi 2 map feedback">qiaohhgz@163.com</a>
+        QQ：695546958(加qq请写备注"吞食天地地图") 时间：2014/08/31 <a href="dist/tstd2-tool.7z" rel="下载离线版">下载到本地</a>
+    </div>
+</div>
+
+
+<div id="area" onmousedown="mapDown(event);return false" onmouseup="mapUp(event)"
+     onmousemove="mapMove(event)">
+    <img id='imageID' src="img/map.png" rel="map"/>
+</div>
+
+<script src="js/lib.js"></script>
+<script src="js/data.js"></script>
+<script src="js/vendor/jquery-1.10.2.min.js"></script>
+<script src="js/map.js"></script>
+</body>
+</html>
+

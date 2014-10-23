@@ -1,0 +1,184 @@
+<html>
+<head>
+    <title>JS 获取图片相对坐标 </title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+    <script src="js/jquery-1.8.2.min.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/lib.js"></script>
+    <link rel="stylesheet" href="js/themes/base/jquery.ui.all.css">
+    <script src="js/jquery-1.10.2.js"></script>
+    <script src="js/ui/jquery.ui.core.js"></script>
+    <script src="js/ui/jquery.ui.widget.js"></script>
+    <script src="js/ui/jquery.ui.position.js"></script>
+    <script src="js/ui/jquery.ui.menu.js"></script>
+    <link rel="stylesheet" href="../demos.css">
+    <style>
+        #controls {
+            width: 200px;
+            height: 250px;
+            background-color: gray;
+            overflow: hidden;
+            overflow-style: scrollbar;
+            z-index: 100;
+            position: fixed;
+            top: 50px;
+            right: 10px;
+            padding: 5px;
+            text-align: center;
+        }
+
+        #cities {
+            height: 65%;
+        }
+
+        #citySel {
+            width: 100%;
+        }
+
+        #control {
+
+        }
+
+        .cityMark {
+            z-index: 99;
+            font-weight: bold;
+            color: yellow;
+            border: 2px solid black;
+            background-color: gray;
+            padding: 3px;
+            width: 100px;
+            position: absolute;
+        }
+
+        .cityMark input {
+            float: right;
+        }
+
+    </style>
+</head>
+
+<body>
+<div id="controls">
+    <div id="cities">
+        <select id="citySel" size="10"></select>
+    </div>
+    <div id="control">
+        <input type="text" id="searchInput" onkeydown="searchCity(event)"/>
+        <input type="button" value="show" id="showDataBtn" onclick="showData()"/>
+        <input type="button" value="load" id="inputDataBtn" onclick="loadData()"/>
+        <input type="button" value="clear" id="clearBtn" onclick="clearVal()"/>
+        <textarea id="inputData" rows="2" cols="18"></textarea>
+    </div>
+</div>
+
+<div id="area" onclick="getClickPos(event);">
+    <img id='imageID' src="map.png">
+</div>
+
+
+<script type="text/javascript">
+    function l(m) {
+        console.log(m);
+    }
+    function clearVal() {
+        $("#inputData").val("");
+    }
+
+    function showData() {
+        $("#inputData").val(JSON.stringify(data));
+    }
+
+    function loadData() {
+        var d = eval($("#inputData").val());
+        if (d) {
+            data = d;
+            loadCities();
+            clearVal();
+        } else {
+            alert("invalid data");
+        }
+    }
+
+    function loadCities() {
+        for (var i = 0; i < data.length; i++) {
+            var c = data[i];
+            var o = new Option(c.name, c.name);
+            o.onclick = optionClick;
+            $("#citySel").append(o);
+            appendCity(c);
+        }
+    }
+
+    function appendCity(c) {
+        var x = c.x + 20;
+        var y = c.y;
+        var id = "city_" + x + "" + y;
+        $("#area").append("<div id=\"" + id + "\" class=\"cityMark\" " +
+                "style=\"left:" + x + "px;top:" + y + "px\"><span>" + c.name + "</span>" +
+                "<input type=\"button\" value=\"X\" onclick=\"deleteCity(\"" + c.name + "\",event)\"/></div>"
+        );
+    }
+
+    function optionClick() {
+        showCity(getCityByName(this.value));
+    }
+
+    function showCity(c) {
+        var cityName = c.name;
+        l("showCity " + cityName);
+        document.body.scrollTop = c.y - window.screen.height / 2 + 100;
+        document.body.scrollLeft = c.x - window.screen.width / 2 + 100;
+    }
+
+    function addCity(name, x, y) {
+        var c = getCityByName(name);
+        if (c) {
+            alert(c.name + " 已存在");
+        } else {
+            c = {name: name, x: x, y: y};
+            data.push(c);
+            appendCity(c);
+        }
+    }
+
+    function deleteCity(name,event) {
+        if (name) {
+            var c = getCityByName(name);
+            if (c) {
+                data.remove(c.index);
+                $("#area").remove($("#city_" + c.x + "" + c.y));
+            }
+        }
+        event.stopPropagation();
+    }
+
+    function getCityByName(n) {
+        for (var i = 0; i < data.length; i++) {
+            var c = data[i];
+            if (c.name == n) {
+                c.index = i;
+                return c;
+            }
+        }
+        return null;
+    }
+
+    function searchCity(e) {
+        if (e.keyCode == 13) {
+            var n = $("#searchInput").val();
+            if (n) {
+                var c = getCityByName(n);
+                if (c) {
+                    showCity(c);
+                } else {
+                    alert(n + " 不存在");
+                }
+            }
+        }
+    }
+    loadCities();
+</script>
+
+</body>
+</html>
+

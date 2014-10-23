@@ -1,0 +1,271 @@
+<html>
+<head>
+    <title>JS 获取图片相对坐标 </title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+    <script src="js/lib.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/jquery-1.10.2.js"></script>
+    <style>
+        #controls {
+            width: 150px;
+            max-height: 250px;
+            background-color: gray;
+            overflow: hidden;
+            overflow-style: scrollbar;
+            z-index: 100;
+            position: fixed;
+            top: 50px;
+            right: 10px;
+            padding: 5px;
+        }
+
+        #control {
+            font-weight: bold;
+            color: yellow;
+            width: 100%;
+            background-color: gray;
+            z-index: 100;
+            position: fixed;
+            bottom: 5px;
+            padding: 5px;
+        }
+
+        #cities {
+            height: 100%;
+        }
+
+        #citySel {
+            width: 100%;
+        }
+
+        .cityMark {
+            z-index: 99;
+            font-weight: bold;
+            color: yellow;
+            border: 2px solid black;
+            background-color: gray;
+            padding: 3px;
+            min-width: 100px;
+            max-width: 300px;
+            position: absolute;
+        }
+
+        .cityMark input {
+            float: right;
+        }
+
+        .copyright {
+            text-align: center;
+            color: #69fffa;
+        }
+
+    </style>
+</head>
+
+<body>
+<div id="controls">
+    <div id="cities">
+        <select id="citySel" size="15" onchange="optionClick()"></select>
+    </div>
+</div>
+
+<div id="control">
+    搜索:<input type="text" id="searchInput" onkeydown="searchCity(event)"/>
+    输入数据:<input id="inputData" type="text"/>
+    <input type="button" value="加载数据" id="inputDataBtn" onclick="loadData()"/>
+    <input type="button" value="显示数据" id="showDataBtn" onclick="showData()"/>
+    <input type="button" value="清空输入框" id="clearBtn" onclick="clearVal()"/>
+    设置图片:<input type="file" id="inputImg" onchange="selectImg()"/>
+
+    <div class="copyright">制作者：小乔 邮箱：
+        <a href="mailto:qiaoshiju@163.com?ie=utf-8&subject=TunShiTianDi 2 map feedback">qiaohhgz@163.com</a>
+        QQ：695546958(加qq请写备注"吞食天地地图") 时间：2014/08/31
+    </div>
+</div>
+
+
+<div id="area" onmousedown="mapDown(event);return false" onmouseup="mapUp(event)"
+     onmousemove="mapMove(event)">
+    <img id='imageID' src="map.png">
+</div>
+
+
+<script type="text/javascript">
+    var data = data || [];
+    var isDown = false;
+    var isMove = true;
+    var sp;
+
+    function showAddDialog(e) {
+        getClickPos(e)
+    }
+
+    function mapDown(e) {
+        isMove = false;
+        isDown = true;
+        sp = getPoint(e);
+    }
+
+    function mapUp(e) {
+        isDown = false;
+        if (isMove == false) {
+            showAddDialog(e);
+        }
+    }
+
+    function mapMove(e) {
+        if (isDown) {
+            isMove = true;
+            var p = getPoint(e);
+            document.body.scrollTop -= (p.y - sp.y);
+            document.body.scrollLeft -= (p.x - sp.x);
+            sp = p;
+        }
+    }
+
+    function getPoint(e) {
+        var xPage = (navigator.appName == 'Netscape') ? e.pageX : event.x + document.body.scrollLeft;
+        var yPage = (navigator.appName == 'Netscape') ? e.pageY : event.y + document.body.scrollTop;
+        return {x: xPage, y: yPage};
+    }
+
+    function selectImg() {
+        openImg("inputImg", "imageID");
+        clearAll();
+    }
+
+    function clearAll() {
+        for (var i = 0; i < data.length; i++) {
+            var c = data[i];
+            var id = "#" + buildCityId(c);
+            $(id).remove();
+            $("#citySel").empty();
+        }
+        data = [];
+    }
+
+    function clearVal() {
+        $("#inputData").val("");
+    }
+
+    function showData() {
+        $("#inputData").val(JSON.stringify(data));
+    }
+
+    function loadData() {
+        var d = eval($("#inputData").val());
+        if (d) {
+            data = d;
+            displayOptions();
+            displayCityMarks();
+            clearVal();
+        } else {
+            alert("invalid data");
+        }
+    }
+
+    function displayOptions() {
+        $("#citySel").empty();
+        for (var i = 0; i < data.length; i++) {
+            var c = data[i];
+            var o = new Option(c.name, c.name);
+            $("#citySel").append(o);
+        }
+    }
+
+    function displayCityMarks() {
+        for (var i = 0; i < data.length; i++) {
+            var c = data[i];
+            appendCity(c);
+        }
+    }
+
+    function stopPP(event) {
+        event.stopPropagation();
+    }
+
+    function appendCity(c) {
+        var x = c.x + 20;
+        var id = buildCityId(c);
+        var name = c.name;
+        var click = "deleteCity('" + name + "')";
+        $("#area").append("<div onmousedown='stopPP(event)' onmouseup='stopPP(event)' onmousemove='stopPP(event)'" +
+                " onclick='stopPP(event)' id=\"" + id + "\" class=\"cityMark\" " +
+                "style=\"left:" + x + "px;top:" + c.y + "px\"><span>" + name + "</span>" +
+                "<input type=\"button\" value=\"X\" onclick=\"" + click + "\"/></div>"
+        )
+        ;
+    }
+
+    function buildCityId(c) {
+        return"city_" + c.x + "" + c.y;
+    }
+
+    function optionClick() {
+        var val = $("#citySel").val();
+        console.log("optionClick " + val);
+        showCity(getCityByName(val));
+    }
+
+    function showCity(c) {
+        document.body.scrollTop = c.y - window.screen.height / 2 + 100;
+        document.body.scrollLeft = c.x - window.screen.width / 2 + 100;
+    }
+
+    function addCity(name, x, y) {
+        var c = getCityByName(name);
+        if (c) {
+            alert(c.name + " 已存在");
+        } else {
+            c = {name: name, x: x, y: y};
+            data.push(c);
+            displayOptions();
+            appendCity(c);
+        }
+    }
+
+    function deleteCity(name) {
+        if (name) {
+            var c = getCityByName(name);
+            if (c) {
+                console.log(c);
+                var id = "#" + buildCityId(c);
+                $(id).remove();
+                data.splice(c.index, 1);
+                displayOptions();
+            }
+        }
+    }
+
+    function getCityByName(n) {
+        for (var i = 0; i < data.length; i++) {
+            var c = data[i];
+            if (c.name == n) {
+                c.index = i;
+                return c;
+            }
+        }
+        return null;
+    }
+
+    function searchCity(e) {
+        if (e.keyCode == 13) {
+            var n = $("#searchInput").val();
+            if (n) {
+                var c = getCityByName(n);
+                if (c) {
+                    showCity(c);
+                } else {
+                    alert(n + " 不存在");
+                }
+            }
+        }
+    }
+
+    displayOptions();
+    displayCityMarks();
+</script>
+
+</body>
+</html>
+
