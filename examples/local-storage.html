@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>html5-local-storage</title>
+</head>
+<body>
+LastTime:<label id="lastTime">Null</label><br>
+<textarea id="textarea" cols="50" rows="10"></textarea>
+<input type="button" value="save" id="saveButton"/>
+
+<script type="text/javascript">
+    var saveButton = document.getElementById("saveButton");
+    var textarea = document.getElementById("textarea");
+    var lastTime = document.getElementById("lastTime");
+
+    saveButton.addEventListener('click', function () {
+        window.localStorage.setItem('value', textarea.value);
+        window.localStorage.setItem('timestamp', (new Date()).getTime());
+    }, false);
+    textarea.value = window.localStorage.getItem('value');
+    var date = new Date();
+    date.setTime(window.localStorage.getItem('timestamp'))
+    lastTime.innerHTML = date.toLocaleDateString() + " " + date.toLocaleTimeString();
+</script>
+</body>
+</html>

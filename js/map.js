@@ -169,7 +169,40 @@ function searchCity(e) {
     }
 }
 
-window.onload = function(){
+function saveToLocal() {
+    if (confirm("确实要保存？")) {
+        mapData.save(JSON.stringify(data));
+    }
+}
+
+function clearLocal() {
+    if (confirm("确实要删除？")) {
+        mapData.clear();
+    }
+}
+
+var mapData = {
+    save: function (val) {
+        window.localStorage.setItem('map-data', val);
+        window.localStorage.setItem('timestamp', (new Date()).getTime());
+        return mapData.get();
+    },
+    get: function () {
+        return {
+            data: window.localStorage.getItem('map-data'),
+            time: window.localStorage.getItem('map-timestamp')
+        };
+    },
+    clear: function () {
+        mapData.save("");
+    },
+    hasData: function () {
+        return !!mapData.get().data;
+    }
+};
+
+window.onload = function () {
+    data = mapData.hasData() ? eval(mapData.get().data) : data;
     displayOptions();
     displayCityMarks();
 }
