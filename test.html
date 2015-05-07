@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script type="text/javascript" src="js/lib.js"></script>
+    <script type="text/javascript">
+        function showInfo() {
+            html5Reader("myfile", "myimg", function (img) {
+                        console.log(img);
+                        var info = {
+                            name: img.name,
+                            type: img.type,
+                            size: img.size + " 字节(" + bytesToSize(img.size) + ")",
+                            width: img.target.width + "px",
+                            height: img.target.height + "px"
+                        };
+                        if (isIE()) {
+                            $("info").innerHTML = "name :" + info.name + " </br> " +
+                            " type :" + info.type + "</br> " +
+                            " size:" + info.size + "</br> " +
+                            " width:" + info.width + "</br> " +
+                            " height:" + info.height;
+                        } else {
+                            $("info").innerHTML = JSON.stringify(info);
+                        }
+                    }
+            )
+        }
+    </script>
+
+
+</head>
+
+<body>
+<div>
+    <input type="file" id="myfile"/>
+    <button onclick="showInfo()">show</button>
+</div>
+<div id="info">
+
+</div>
+<img src="#" id="myimg" style="max-width: 300px;max-height: 300px;"/>
+</body>
+</html>
